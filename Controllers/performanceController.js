@@ -4,7 +4,6 @@ const Result = require("../Models/Result");
 
 const fetchAll = async (req, res) => {
   try {
-    console.log("fetch all method invoked");
     const { page = 1, limit = 3 } = req.query;
 
     const results = await Result.find({ examTakenBy: req.user.userId })

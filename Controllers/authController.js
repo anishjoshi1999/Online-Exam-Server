@@ -5,7 +5,7 @@ const { generateAccessToken, generateRefreshToken } = require("../utils/jwt");
 //   sendPasswordResetEmail,
 // } = require("../utils/email");
 const crypto = require("crypto");
-// const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 
 const register = async (req, res) => {
   try {
@@ -113,8 +113,10 @@ const refreshToken = async (req, res) => {
     if (!refreshToken) {
       return res.status(401).json({ message: "Refresh token required" });
     }
-    // const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-    const user = await User.findOne({ refreshToken });
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
+    const user = await User.findOne({ _id: decoded.userId, refreshToken });
+
     if (!user) {
       return res.status(403).json({ message: "Invalid refresh token" });
     }
