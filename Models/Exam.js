@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const slugify = require("slugify"); // Import slugify package
 const User = require("./User");
 
-
 var QuestionSchema = new mongoose.Schema({
   question: { type: String, required: true },
   options: { type: [String], required: true },
@@ -27,8 +26,12 @@ var ExamSchema = new mongoose.Schema(
     passMarks: { type: Number, required: true },
     questions: [QuestionSchema], // Embed the questions schema
     timezone: { type: String, required: true },
-    username: {
-      type: mongoose.Schema.Types.String,
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     }, // Add username field with reference to User model

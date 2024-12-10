@@ -7,6 +7,8 @@ const { RateLimiterMemory } = require('rate-limiter-flexible');
 const connectDB = require('./config/database');
 const authRoutes = require('./Routes/authRoute');
 const mcqRoutes = require('./Routes/mcqRoute');
+const examRoutes = require('./Routes/examRoute');
+const performanceRoutes = require('./Routes/performanceRoute');
 const logger = require('./config/logger'); // Import the logger
 const app = express();
 
@@ -46,6 +48,8 @@ app.use(async (req, res, next) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/mcq', mcqRoutes);
+app.use('/api/take-exam', examRoutes);
+app.use('/api/view-performance', performanceRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

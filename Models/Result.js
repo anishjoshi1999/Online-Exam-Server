@@ -7,7 +7,7 @@ var ResultSchema = new mongoose.Schema(
     userEnrolledInExam: { type: Boolean, default: false, required: true },
     paperSubmittedInExam: { type: Boolean, default: false, required: true },
     examTakenBy: {
-      type: mongoose.Schema.Types.String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     }, // User ID of the exam taker
