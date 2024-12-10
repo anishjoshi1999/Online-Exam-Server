@@ -5,7 +5,8 @@ const { authenticateToken } = require("../Middleware/auth");
 
 // Routes
 //Submit Exam: api/view-participation
-router.post("/", authenticateToken, participationController.fetchExam); // Fetch all
+router.post("/", authenticateToken, participationController.fetchResult); // Fetch all
+router.get("/:slug", authenticateToken, participationController.fetch); // Fetch all
 
 
 module.exports = router;

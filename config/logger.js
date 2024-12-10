@@ -13,8 +13,8 @@ const logger = winston.createLogger({
   format: logFormat,
   transports: [
     new winston.transports.Console({ format: winston.format.combine(winston.format.colorize(), logFormat) }), // Console log
-    new winston.transports.File({ filename: 'logs/combined.log' }), // Log to file
-    new winston.transports.File({ filename: 'logs/errors.log', level: 'error' }) // Error log to file
+    // new winston.transports.File({ filename: 'logs/combined.log' }), // Log to file
+    // new winston.transports.File({ filename: 'logs/errors.log', level: 'error' }) // Error log to file
   ],
 });
 

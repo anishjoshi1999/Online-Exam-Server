@@ -9,6 +9,7 @@ const authRoutes = require('./Routes/authRoute');
 const mcqRoutes = require('./Routes/mcqRoute');
 const examRoutes = require('./Routes/examRoute');
 const performanceRoutes = require('./Routes/performanceRoute');
+const participationRoutes = require('./Routes/participationRoute');
 const logger = require('./config/logger'); // Import the logger
 const app = express();
 
@@ -50,7 +51,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/mcq', mcqRoutes);
 app.use('/api/take-exam', examRoutes);
 app.use('/api/view-performance', performanceRoutes);
-
+app.use('/api/view-participation', participationRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
