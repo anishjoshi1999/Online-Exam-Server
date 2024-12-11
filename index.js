@@ -30,7 +30,7 @@ app.use((req, res, next) => {
 app.use(helmet());
 app.use(
   cors({
-    origin: "https://onlinemcqexam.vercel.app/",
+    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
     credentials: true,
   })
 );
