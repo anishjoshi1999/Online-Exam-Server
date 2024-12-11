@@ -74,8 +74,8 @@ const login = async (req, res) => {
     }
 
     // Generate tokens
-    const accessToken = generateAccessToken(user._id);
-    const refreshToken = generateRefreshToken(user._id);
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
 
     // Update user's refresh token and last login
     user.refreshToken = refreshToken;
@@ -121,7 +121,7 @@ const refreshToken = async (req, res) => {
       return res.status(403).json({ message: "Invalid refresh token" });
     }
 
-    const newAccessToken = generateAccessToken(user._id);
+    const newAccessToken = generateAccessToken(user);
     res.json({ accessToken: newAccessToken });
   } catch (error) {
     res

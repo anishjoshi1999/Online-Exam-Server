@@ -5,6 +5,12 @@ const Result = require("../Models/Result");
 const fetch = async (req, res) => {
   try {
     try {
+      let userInfo = await User.findById(req.user.userId);
+      if (userInfo.role != "admin") {
+        return res
+          .status(401)
+          .json({ message: "You are not authorized to Fetch Exam" });
+      }
       const results = await Result.find({ examName: req.params.slug });
       if (!results) {
         return res
@@ -25,8 +31,13 @@ const fetch = async (req, res) => {
 };
 const fetchResult = async (req, res) => {
   try {
+    let userInfo = await User.findById(req.user.userId);
+    if (userInfo.role != "admin") {
+      return res
+        .status(401)
+        .json({ message: "You are not authorized to Fetch Exam" });
+    }
     const { examName, username } = req.body; // Get the username from the authenticated request
-console.log(req.body)
     // Find the result for this exam slug and user
     const result = await Result.findOne({
       examName: examName,

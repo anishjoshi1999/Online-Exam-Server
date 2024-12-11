@@ -7,12 +7,16 @@ const {
 } = require("../utils/manage-exams/calculateExamStatistics");
 const createOne = async (req, res) => {
   try {
-    console.log("Inside create method");
-
     const { examDetails, questions } = req.body;
     // Validate the incoming data structure
     if (!examDetails || !questions) {
       return res.status(400).json({ success: false, message: "Invalid data" });
+    }
+    let userInfo = await User.findById(req.user.userId);
+    if (userInfo.role != "admin") {
+      return res
+        .status(401)
+        .json({ message: "You are not authorized to Create Exam" });
     }
 
     const startDateUTC = moment
@@ -61,6 +65,12 @@ const createOne = async (req, res) => {
 const findAll = async (req, res) => {
   try {
     const { page = 1, limit = 3 } = req.query; // Default to page 1 and limit 10
+    let userInfo = await User.findById(req.user.userId);
+    if (userInfo.role != "admin") {
+      return res
+        .status(401)
+        .json({ message: "You are not authorized to Create Exam" });
+    }
 
     const exams = await Exam.find({ userId: req.user.userId, isDeleted: false })
       .sort({ createdAt: -1 }) // Sort by `createdAt` in descending order
@@ -86,11 +96,17 @@ const findAll = async (req, res) => {
 
 const findOne = async (req, res) => {
   try {
+    let userInfo = await User.findById(req.user.userId);
+    if (userInfo.role != "admin") {
+      return res
+        .status(401)
+        .json({ message: "You are not authorized to Search Exam" });
+    }
     // Find the exam by slug
     const exam = await Exam.findOne({
       userId: req.user.userId,
       slug: req.params.slug,
-      isDeleted: false
+      isDeleted: false,
     });
     const formattedStartTime = moment
       .utc(exam.startDate)
@@ -115,6 +131,12 @@ const findOne = async (req, res) => {
 
 const findOneAndUpdate = async (req, res) => {
   try {
+    let userInfo = await User.findById(req.user.userId);
+    if (userInfo.role != "admin") {
+      return res
+        .status(401)
+        .json({ message: "You are not authorized to Update Exam" });
+    }
     console.log("fetchOneUpdate method invoked");
     // const { username } = req.user;
     const { startDate, endDate, timezone, ...updateData } = req.body;
@@ -126,7 +148,7 @@ const findOneAndUpdate = async (req, res) => {
     updateData.timezone = timezone;
     // Update the exam based on the slug
     const updatedExam = await Exam.findOneAndUpdate(
-      { userId: req.user.userId, slug: req.params.slug,isDeleted: false },
+      { userId: req.user.userId, slug: req.params.slug, isDeleted: false },
       updateData,
       { new: true, runValidators: true } // Return the updated document
     );
@@ -148,6 +170,12 @@ const findOneAndUpdate = async (req, res) => {
 
 const findOneAndDelete = async (req, res) => {
   try {
+    let userInfo = await User.findById(req.user.userId);
+    if (userInfo.role != "admin") {
+      return res
+        .status(401)
+        .json({ message: "You are not authorized to Delete Exam" });
+    }
     // Soft delete the exam by updating the `isDeleted` flag
     const deletedExam = await Exam.findOneAndUpdate(
       {
@@ -158,7 +186,6 @@ const findOneAndDelete = async (req, res) => {
       { isDeleted: true }, // Set the `isDeleted` flag to `true`
       { new: true } // Return the updated document
     );
-
 
     if (!deletedExam) {
       return res
