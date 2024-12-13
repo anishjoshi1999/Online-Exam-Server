@@ -18,20 +18,35 @@ const fetchExam = async (req, res) => {
           .status(404)
           .json({ success: false, message: "Exam not found." });
       }
-      const result = await Result.findOne({
-        examName: req.params.slug,
-        examTakenBy: req.user.userId,
-      });
-      if (
-        result &&
-        result.userEnrolledInExam === true &&
-        result.paperSubmittedInExam === true
-      ) {
+      let hasAccess = exam.access.includes(req.user.userId);
+      if (hasAccess) {
+        // User has access
+        console.log("User has access to the exam.");
+        const result = await Result.findOne({
+          examName: req.params.slug,
+          examTakenBy: req.user.userId,
+        });
+        if (
+          result &&
+          result.userEnrolledInExam === true &&
+          result.paperSubmittedInExam === true
+        ) {
+          return res.status(423).json({
+            success: false,
+            message: "You have already taken the exam",
+          });
+        }
+        return res.status(200).json({ success: true, exam, result });
+      } else {
+        // User does not have access
+        console.log("User does not have access to the exam.");
         return res
-          .status(423)
-          .json({ success: false, message: "You have already taken the exam" });
+          .status(401)
+          .json({
+            success: false,
+            message: "User does not have access to the exam.",
+          });
       }
-      return res.status(200).json({ success: true, exam, result });
     } catch (error) {
       console.error(error); // Improved error logging
       return res.status(400).json({ success: false, error: error.message });
