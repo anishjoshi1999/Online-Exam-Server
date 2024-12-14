@@ -8,8 +8,8 @@ const generateAccessToken = (user) => {
     { userId, userRole, firstName },
     process.env.JWT_ACCESS_SECRET,
     {
-      expiresIn: "15m",
-      issuer: "Online Exam",
+      expiresIn: "60m",
+      issuer: "Take Exam",
     }
   );
 };
@@ -23,7 +23,7 @@ const generateRefreshToken = (user) => {
     process.env.JWT_REFRESH_SECRET,
     {
       expiresIn: "7d", // Longer expiration for refresh tokens
-      issuer: "Online Exam",
+      issuer: "Take Exam",
     }
   );
 };

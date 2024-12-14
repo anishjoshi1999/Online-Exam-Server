@@ -49,7 +49,7 @@ app.use(async (req, res, next) => {
   }
 });
 app.get("/", (req, res) => {
-  res.status(200).json({ message: "Welcome to Online Exam Server" });
+  res.status(200).json({ message: "Welcome to Take Exam Server" });
 });
 // Routes
 app.use("/api/auth", authRoutes);
