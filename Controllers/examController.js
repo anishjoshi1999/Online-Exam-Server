@@ -8,11 +8,13 @@ const BULK_WRITE_THRESHOLD = 1;
 const fetchExam = async (req, res) => {
   try {
     try {
+      console.log(req.params.slug)
       // Save the new exam to the database
       const exam = await Exam.findOne({
         slug: req.params.slug,
         isDeleted: false,
       });
+      console.log(exam)
       if (!exam) {
         return res
           .status(404)

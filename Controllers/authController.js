@@ -1,9 +1,9 @@
 const User = require("../Models/User");
 const { generateAccessToken, generateRefreshToken } = require("../utils/jwt");
-// const {
-//   sendVerificationEmail,
-//   sendPasswordResetEmail,
-// } = require("../utils/email");
+const {
+  sendVerificationEmail,
+  sendPasswordResetEmail,
+} = require("../utils/email");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
@@ -30,14 +30,13 @@ const register = async (req, res) => {
       lastName,
       verificationToken,
       verificationTokenExpiry,
-      receiveUpdates,
-      isVerified: true,
+      receiveUpdates
     });
 
     await user.save();
 
     // Send verification email
-    // await sendVerificationEmail(user.email, verificationToken);
+    await sendVerificationEmail(user.email, verificationToken);
 
     res.status(201).json({
       message:
@@ -168,7 +167,7 @@ const forgotPassword = async (req, res) => {
     await user.save();
 
     // Send password reset email
-    // await sendPasswordResetEmail(user.email, resetToken);
+    await sendPasswordResetEmail(user.email, resetToken);
 
     res.json({ message: "Password reset instructions sent to your email" });
   } catch (error) {
@@ -208,6 +207,43 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.query;
+console.log(token)
+    if (!token) {
+      return res.status(400).json({ message: "Verification token is required" });
+    }
+
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationTokenExpiry: { $gt: Date.now() },
+      isVerified: false
+    });
+
+    if (!user) {
+      return res.status(400).json({ 
+        message: "Invalid or expired verification token" 
+      });
+    }
+
+    // Update user verification status
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpiry = undefined;
+    await user.save();
+
+    res.json({ 
+      message: "Email verified successfully. You can now log in." 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      message: "Error verifying email", 
+      error: error.message 
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -215,4 +251,5 @@ module.exports = {
   logout,
   forgotPassword,
   resetPassword,
+  verifyEmail
 };
