@@ -1,3 +1,4 @@
+require("dotenv").config();
 const User = require("../Models/User");
 const { generateAccessToken, generateRefreshToken } = require("../utils/jwt");
 const {
@@ -30,7 +31,7 @@ const register = async (req, res) => {
       lastName,
       verificationToken,
       verificationTokenExpiry,
-      receiveUpdates
+      receiveUpdates,
     });
 
     await user.save();
@@ -210,20 +211,21 @@ const resetPassword = async (req, res) => {
 const verifyEmail = async (req, res) => {
   try {
     const { token } = req.query;
-console.log(token)
     if (!token) {
-      return res.status(400).json({ message: "Verification token is required" });
+      return res
+        .status(400)
+        .json({ message: "Verification token is required" });
     }
 
     const user = await User.findOne({
       verificationToken: token,
       verificationTokenExpiry: { $gt: Date.now() },
-      isVerified: false
+      isVerified: false,
     });
 
     if (!user) {
-      return res.status(400).json({ 
-        message: "Invalid or expired verification token" 
+      return res.status(400).json({
+        message: "Invalid or expired verification token",
       });
     }
 
@@ -233,13 +235,14 @@ console.log(token)
     user.verificationTokenExpiry = undefined;
     await user.save();
 
-    res.json({ 
-      message: "Email verified successfully. You can now log in." 
-    });
+    return res.redirect(
+      `${process.env.CORS_ORIGIN}/login`
+    );
+    
   } catch (error) {
-    res.status(500).json({ 
-      message: "Error verifying email", 
-      error: error.message 
+    res.status(500).json({
+      message: "Error verifying email",
+      error: error.message,
     });
   }
 };
@@ -251,5 +254,5 @@ module.exports = {
   logout,
   forgotPassword,
   resetPassword,
-  verifyEmail
+  verifyEmail,
 };

@@ -19,14 +19,21 @@ const sendVerificationEmail = async (email, token) => {
   try {
     const verificationUrl = `${process.env.BACKEND_SERVER_URL}/api/auth/verify-email?token=${token}`;
     const response = await mg.messages.create(DOMAIN, {
-      from: `Exam Invite <mailgun@${DOMAIN}>`,
+      from: `Email Verification <mailgun@${DOMAIN}>`,
       to: email,
       subject: "Verify Your Email",
       html: `
-        <h1>Email Verification</h1>
-        <p>Please click the link below to verify your email address:</p>
-        <a href="${verificationUrl}">${verificationUrl}</a>
-        <p>This link will expire in 24 hours.</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <h2 style="text-align: center; color: #007BFF;">Welcome to Start Test</h2>
+          <p>Hello,</p>
+          <p>Thank you for registering with Start Test. Please verify your email address by clicking the button below:</p>
+          <p style="text-align: center;">
+            <a href="${verificationUrl}" style="display: inline-block; padding: 10px 20px; background-color: #007BFF; color: #fff; text-decoration: none; border-radius: 5px; font-size: 16px;">Verify Email</a>
+          </p>
+          <p>If you did not sign up for Start Test, you can safely ignore this email.</p>
+          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+          <p style="text-align: center; color: #888;">Start Test - Your trusted exam platform</p>
+        </div>
       `,
     });
     console.log(`Verification email sent to ${email}`);
@@ -39,21 +46,27 @@ const sendVerificationEmail = async (email, token) => {
 
 const sendInviteViaEmail = async (emailList, code) => {
   try {
-    // const verificationCode = code;
     const response = await mg.messages.create(DOMAIN, {
-      from: `Exam Invite <mailgun@${DOMAIN}>`,
+      from: `Exam Invite and Exam Access <mailgun@${DOMAIN}>`,
       to: [...emailList],
-      subject: "You have been authorized and Invited for the exam",
+      subject: "You are Invited and Authorized to Take an Exam",
       html: `
-        <h1>You have invited to take the exam</h1>
-        <p>Take the exam code and paste on take exam section of Start Test</p>
-
-        <p>Here is your code: ${code}</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <h2 style="text-align: center; color: #007BFF;">Exam Invitation</h2>
+          <p>Hello,</p>
+          <p>You have been invited to take an exam on Start Test. Please use the code below to access the exam:</p>
+          <div style="text-align: center; margin: 20px;">
+            <span style="display: inline-block; padding: 10px 20px; background-color: #007BFF; color: #fff; font-size: 20px; font-weight: bold; border-radius: 5px;">${code}</span>
+          </div>
+          <p>Visit Start Test and enter the code in the "Take Exam" section to get started.</p>
+          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+          <p style="text-align: center; color: #888;">Start Test - Your trusted exam platform</p>
+        </div>
       `,
     });
     return response;
   } catch (error) {
-    console.error("Error sending Invitation email:", error);
+    console.error("Error sending invitation email:", error);
     throw error;
   }
 };
@@ -62,15 +75,21 @@ const sendPasswordResetEmail = async (email, token) => {
   try {
     const resetUrl = `${process.env.BACKEND_SERVER_URL}api/auth/reset-password?token=${token}`;
     const response = await mg.messages.create(DOMAIN, {
-      from: `Exam Invite <mailgun@${DOMAIN}>`,
+      from: `Reset Password <mailgun@${DOMAIN}>`,
       to: email,
       subject: "Reset Your Password",
       html: `
-        <h1>Password Reset Request</h1>
-        <p>Please click the link below to reset your password:</p>
-        <a href="${resetUrl}">${resetUrl}</a>
-        <p>This link will expire in 1 hour.</p>
-        <p>If you didn't request this, please ignore this email.</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <h2 style="text-align: center; color: #007BFF;">Password Reset Request</h2>
+          <p>Hello,</p>
+          <p>You recently requested to reset your password. Click the button below to proceed:</p>
+          <p style="text-align: center;">
+            <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #007BFF; color: #fff; text-decoration: none; border-radius: 5px; font-size: 16px;">Reset Password</a>
+          </p>
+          <p>If you did not request this change, please ignore this email. This link will expire in 1 hour.</p>
+          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+          <p style="text-align: center; color: #888;">Start Test - Your trusted exam platform</p>
+        </div>
       `,
     });
     console.log(`Password reset email sent to ${email}`);
@@ -80,7 +99,6 @@ const sendPasswordResetEmail = async (email, token) => {
     throw error;
   }
 };
-
 module.exports = {
   sendVerificationEmail,
   sendPasswordResetEmail,
