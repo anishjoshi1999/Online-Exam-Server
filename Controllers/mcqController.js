@@ -77,7 +77,10 @@ const findAll = async (req, res) => {
       .skip((page - 1) * limit)
       .limit(parseInt(limit)); // Use `skip` and `limit` for pagination
 
-    const examsInformation = await Exam.find({ userId: req.user.userId })
+    const examsInformation = await Exam.find({
+      userId: req.user.userId,
+      isDeleted: false,
+    })
       .select("startDate endDate")
       .exec();
     const examStatistics = calculateExamStatistics(examsInformation);

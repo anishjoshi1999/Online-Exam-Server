@@ -14,6 +14,33 @@ function processEmailList(emailList) {
 
   return uniqueValidEmails;
 }
+// async function getUsersWithMembership(emailList) {
+//   try {
+//     // Step 1: Validate and clean the email list
+//     const processedEmails = processEmailList(emailList);
+
+//     // Step 2: Fetch users whose email is in the provided email list
+//     const users = await User.find(
+//       { email: { $in: processedEmails } }, // Filter by the list of emails
+//       "_id email" // Project only the `_id` and `email` fields
+//     ).lean();
+
+//     // Step 3: Create a map of emails to user IDs
+//     const emailToUserIdMap = new Map(users.map((user) => [user.email, user._id]));
+
+//     // Step 4: Return a list of user objects with `userId` and `isMember` flag
+//     const result = processedEmails.map((email) => ({
+//       email: email,
+//       userId: emailToUserIdMap.get(email) || null,
+//       isMember: emailToUserIdMap.has(email),
+//     }));
+
+//     return result;
+//   } catch (error) {
+//     console.error("Error fetching users with membership:", error);
+//     throw error;
+//   }
+// }
 async function getUserIdsByEmails(emailList) {
   try {
     // Fetch users whose email is in the provided email list
@@ -23,7 +50,7 @@ async function getUserIdsByEmails(emailList) {
     ).lean();
     // console.log(users)
     // Extract and return only the `_id` values
-    const userIds = users.map((user) => user._id);
+    const userIds = users.map((user) => {user._id});
     return userIds;
   } catch (error) {
     console.error("Error fetching user IDs:", error);
@@ -49,6 +76,8 @@ const inviteAndProvideAccess = async (req, res) => {
     }
 
     const filteredEmail = processEmailList(emails);
+    // var temp = await getUsersWithMembership(filteredEmail);
+    // console.log(temp)
     const userIds = await getUserIdsByEmails(filteredEmail);
 
     const exam = await Exam.findOne({ userId: req.user.userId, slug });
@@ -66,7 +95,7 @@ const inviteAndProvideAccess = async (req, res) => {
       { new: true }
     );
     try {
-      await sendInviteViaEmail(filteredEmail, slug);
+      // await sendInviteViaEmail(filteredEmail, slug);
     } catch (error) {
       return res.status(401).json({
         message: "Exam access is provided but failed to send email",
