@@ -95,7 +95,7 @@ const inviteAndProvideAccess = async (req, res) => {
       { new: true }
     );
     try {
-      // await sendInviteViaEmail(filteredEmail, slug);
+      await sendInviteViaEmail(filteredEmail, slug);
     } catch (error) {
       return res.status(401).json({
         message: "Exam access is provided but failed to send email",
