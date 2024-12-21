@@ -1,46 +1,19 @@
 const User = require("../Models/User");
 const Exam = require("../Models/Exam");
 const { sendInviteViaEmail } = require("../utils/email");
+const { isEmail, normalizeEmail } = require('validator');
 function processEmailList(emailList) {
-  const validEmailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  // Filter out invalid emails
-  const validEmails = emailList.filter((email) =>
-    validEmailPattern.test(email)
-  );
+  // Filter out invalid emails and normalize valid ones
+  const validNormalizedEmails = emailList
+    .filter((email) => isEmail(email)) // Validate email
+    .map((email) => normalizeEmail(email)); // Normalize email
 
   // Remove duplicates
-  const uniqueValidEmails = [...new Set(validEmails)];
+  const uniqueValidEmails = [...new Set(validNormalizedEmails)];
 
   return uniqueValidEmails;
 }
-// async function getUsersWithMembership(emailList) {
-//   try {
-//     // Step 1: Validate and clean the email list
-//     const processedEmails = processEmailList(emailList);
 
-//     // Step 2: Fetch users whose email is in the provided email list
-//     const users = await User.find(
-//       { email: { $in: processedEmails } }, // Filter by the list of emails
-//       "_id email" // Project only the `_id` and `email` fields
-//     ).lean();
-
-//     // Step 3: Create a map of emails to user IDs
-//     const emailToUserIdMap = new Map(users.map((user) => [user.email, user._id]));
-
-//     // Step 4: Return a list of user objects with `userId` and `isMember` flag
-//     const result = processedEmails.map((email) => ({
-//       email: email,
-//       userId: emailToUserIdMap.get(email) || null,
-//       isMember: emailToUserIdMap.has(email),
-//     }));
-
-//     return result;
-//   } catch (error) {
-//     console.error("Error fetching users with membership:", error);
-//     throw error;
-//   }
-// }
 async function getUserIdsByEmails(emailList) {
   try {
     // Fetch users whose email is in the provided email list
@@ -48,10 +21,11 @@ async function getUserIdsByEmails(emailList) {
       { email: { $in: emailList } }, // Filter by the list of emails
       "_id" // Project only the `_id` field
     ).lean();
-    // console.log(users)
+    console.log(users)
     // Extract and return only the `_id` values
-    const userIds = users.map((user) => {user._id});
+    const userIds = users.map((user) => user._id); // Corrected: No braces or explicit return
     return userIds;
+    
   } catch (error) {
     console.error("Error fetching user IDs:", error);
     throw error;
@@ -76,10 +50,8 @@ const inviteAndProvideAccess = async (req, res) => {
     }
 
     const filteredEmail = processEmailList(emails);
-    // var temp = await getUsersWithMembership(filteredEmail);
-    // console.log(temp)
-    const userIds = await getUserIdsByEmails(filteredEmail);
 
+    const userIds = await getUserIdsByEmails(filteredEmail);
     const exam = await Exam.findOne({ userId: req.user.userId, slug });
 
     if (!exam) {
