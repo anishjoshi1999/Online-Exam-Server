@@ -26,6 +26,7 @@ router.post('/login', loginValidation, validateRequest, authController.login);
 router.get('/verify-email', authController.verifyEmail);
 router.post('/refresh-token', authController.refreshToken);
 router.post('/logout', authenticateToken, authController.logout);
+router.post('/waiting-list', authController.waitingList);
 router.post('/forgot-password', body('email').isEmail(), validateRequest, authController.forgotPassword);
 router.post('/reset-password', [
   body('token').notEmpty(),

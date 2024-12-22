@@ -1,5 +1,6 @@
 require("dotenv").config();
 const User = require("../Models/User");
+const WaitingUser = require("../Models/WaitingUser");
 const { generateAccessToken, generateRefreshToken } = require("../utils/jwt");
 const {
   sendVerificationEmail,
@@ -242,7 +243,41 @@ const verifyEmail = async (req, res) => {
     });
   }
 };
+const waitingList = async (req, res) => {
+  try {
+    const { email, fullName, profession, education, location, receiveUpdates } =
+      req.body;
 
+    // Check if the email already exists in the waiting list
+    const existingUser = await WaitingUser.findOne({ email });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ message: "Email already exists in the waiting list" });
+    }
+
+    // Create a new waiting user
+    const newWaitingUser = new WaitingUser({
+      email,
+      fullName,
+      profession,
+      education,
+      location,
+      receiveUpdates,
+    });
+
+    await newWaitingUser.save();
+
+    res.json({ message: "User added to the waiting list successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message: "Error during adding to waiting list",
+        error: error.message,
+      });
+  }
+};
 module.exports = {
   register,
   login,
@@ -251,4 +286,5 @@ module.exports = {
   forgotPassword,
   resetPassword,
   verifyEmail,
+  waitingList,
 };
