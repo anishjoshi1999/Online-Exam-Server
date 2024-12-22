@@ -6,7 +6,7 @@ const mailgun = new Mailgun(formData);
 const DOMAIN = process.env.MAILGUN_DOMAIN || "invite.starttest.online";
 const API_KEY = process.env.MAILGUN_API_KEY;
 
-if (!DOMAIN || !API_KEY ) {
+if (!DOMAIN || !API_KEY) {
   throw new Error("Missing required environment variables.");
 }
 
@@ -23,20 +23,47 @@ const sendVerificationEmail = async (email, token) => {
       to: email,
       subject: "Verify Your Email",
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-          <h2 style="text-align: center; color: #007BFF;">Welcome to Start Test</h2>
-          <p>Hello,</p>
-          <p>Thank you for registering with Start Test. Please verify your email address by clicking the button below:</p>
-          <p style="text-align: center;">
-            <a href="${verificationUrl}" style="display: inline-block; padding: 10px 20px; background-color: #007BFF; color: #fff; text-decoration: none; border-radius: 5px; font-size: 16px;">Verify Email</a>
-          </p>
-          <p>If you did not sign up for Start Test, you can safely ignore this email.</p>
-          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-          <p style="text-align: center; color: #888;">Start Test - Your trusted exam platform</p>
+       <div style="margin: 0; padding: 20px; background-color: #f5f5f5; font-family: Arial, sans-serif;">
+    <div style="max-width: 600px; margin: auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h2 style="color: #2C3E50; margin: 0; font-size: 24px;">Welcome to Start Test</h2>
         </div>
+        
+        <div style="color: #444; line-height: 1.6;">
+            <p style="margin-top: 0;">Dear User,</p>
+            
+            <p>Thank you for creating an account with Start Test. To ensure the security of your account and activate all features, please verify your email address by clicking the button below:</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="${verificationUrl}" style="display: inline-block; padding: 14px 32px; background-color: #3498DB; color: white; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 16px; transition: background-color 0.3s ease;">
+                    Verify Email Address
+                </a>
+            </div>
+            
+            <div style="background-color: #f8f9fa; border-left: 4px solid #3498DB; padding: 15px; margin: 20px 0;">
+                <p style="margin: 0;">
+                    <strong>Security Notice:</strong> If you didn't create an account with Start Test, you can safely ignore this email. Your email address will not be activated without verification.
+                </p>
+            </div>
+            
+            <p>After verification, you'll have full access to our examination platform and can begin taking tests.</p>
+            
+            <p>If you have any questions or need assistance, our support team is here to help.</p>
+            
+            <p>Best regards,<br>The Start Test Team</p>
+        </div>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 25px 0;">
+        
+        <div style="text-align: center; color: #666; font-size: 14px;">
+            <p style="margin: 0;">Start Test</p>
+            <p style="margin: 5px 0 0 0;">Your Trusted Examination Platform</p>
+            <p style="margin: 5px 0 0 0; font-size: 12px; color: #888;">This is an automated message, please do not reply.</p>
+        </div>
+    </div>
+</div>
       `,
     });
-    console.log(`Verification email sent to ${email}`);
     return response;
   } catch (error) {
     console.error("Error sending verification email:", error);
@@ -51,17 +78,47 @@ const sendInviteViaEmail = async (emailList, code) => {
       to: [...emailList],
       subject: "You are Invited and Authorized to Take an Exam",
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-          <h2 style="text-align: center; color: #007BFF;">Exam Invitation</h2>
-          <p>Hello,</p>
-          <p>You have been invited to take an exam on Start Test. Please use the code below to access the exam:</p>
-          <div style="text-align: center; margin: 20px;">
-            <span style="display: inline-block; padding: 10px 20px; background-color: #007BFF; color: #fff; font-size: 20px; font-weight: bold; border-radius: 5px;">${code}</span>
-          </div>
-          <p>Visit Start Test and enter the code in the "Take Exam" section to get started.</p>
-          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-          <p style="text-align: center; color: #888;">Start Test - Your trusted exam platform</p>
+      <div style="margin: 0; padding: 20px; background-color: #f5f5f5; font-family: Arial, sans-serif;">
+    <div style="max-width: 600px; margin: auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h2 style="color: #2C3E50; margin: 0; font-size: 24px;">Exam Invitation</h2>
         </div>
+        
+        <div style="color: #444; line-height: 1.6;">
+            <p style="margin-top: 0;">Dear Candidate,</p>
+            
+            <p>You have been invited to take an exam on Start Test. Below you'll find your unique access code:</p>
+            
+            <div style="text-align: center; margin: 25px 0;">
+                <div style="display: inline-block; padding: 15px 30px; background-color: #3498DB; color: white; font-size: 22px; font-weight: bold; border-radius: 6px; letter-spacing: 1px;">
+                    ${code}
+                </div>
+            </div>
+            
+            <div style="background-color: #f8f9fa; border-left: 4px solid #3498DB; padding: 15px; margin: 20px 0;">
+                <strong style="display: block; margin-bottom: 10px;">Instructions:</strong>
+                <ol style="margin: 0; padding-left: 20px;">
+                    <li>Visit <a href="https://starttest.online" style="color: #3498DB; text-decoration: none; font-weight: 500;">starttest.online</a></li>
+                    <li>Log in to your account</li>
+                    <li>Navigate to "Start Exam"</li>
+                    <li>Enter your access code</li>
+                    <li>Begin your exam</li>
+                </ol>
+            </div>
+            
+            <p>If you experience any technical difficulties, please contact our support team for immediate assistance.</p>
+            
+            <p>Best of luck with your exam!</p>
+        </div>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 25px 0;">
+        
+        <div style="text-align: center; color: #666; font-size: 14px;">
+            <p style="margin: 0;">Start Test</p>
+            <p style="margin: 5px 0 0 0;">Your Trusted Examination Platform</p>
+        </div>
+    </div>
+</div>
       `,
     });
     return response;
@@ -73,23 +130,56 @@ const sendInviteViaEmail = async (emailList, code) => {
 
 const sendPasswordResetEmail = async (email, token) => {
   try {
-    const resetUrl = `${process.env.BACKEND_SERVER_URL}api/auth/reset-password?token=${token}`;
     const response = await mg.messages.create(DOMAIN, {
       from: `Reset Password <mailgun@${DOMAIN}>`,
       to: email,
       subject: "Reset Your Password",
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-          <h2 style="text-align: center; color: #007BFF;">Password Reset Request</h2>
-          <p>Hello,</p>
-          <p>You recently requested to reset your password. Click the button below to proceed:</p>
-          <p style="text-align: center;">
-            <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #007BFF; color: #fff; text-decoration: none; border-radius: 5px; font-size: 16px;">Reset Password</a>
-          </p>
-          <p>If you did not request this change, please ignore this email. This link will expire in 1 hour.</p>
-          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-          <p style="text-align: center; color: #888;">Start Test - Your trusted exam platform</p>
+   <div style="margin: 0; padding: 20px; background-color: #f5f5f5; font-family: Arial, sans-serif;">
+    <div style="max-width: 600px; margin: auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h2 style="color: #2C3E50; margin: 0; font-size: 24px;">Password Reset Request</h2>
         </div>
+        
+        <div style="color: #444; line-height: 1.6;">
+            <p style="margin-top: 0;">Dear User,</p>
+            
+            <p>We received a request to reset the password for your Start Test account. To reset your password, please use the following reset code:</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="background-color: #f8f9fa; border: 2px dashed #3498DB; padding: 15px; display: inline-block; border-radius: 6px;">
+                    <code style="font-size: 20px; color: #2C3E50; font-weight: bold; letter-spacing: 2px;">${token}</code>
+                </div>
+                <p style="margin-top: 10px; font-size: 14px; color: #666;">Visit https://starttest.online/forgot-password to reset your password</p>
+            </div>
+            
+            <div style="background-color: #f8f9fa; border-left: 4px solid #e74c3c; padding: 15px; margin: 20px 0;">
+                <p style="margin: 0;">
+                    <strong>Important Security Information:</strong>
+                </p>
+                <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+                    <li>This reset code will expire in 1 hour</li>
+                    <li>If you didn't request this password reset, please ignore this email</li>
+                    <li>For security reasons, never share this code with anyone</li>
+                </ul>
+            </div>
+            
+            <p>After resetting your password, you'll be able to log in to your account with your new credentials.</p>
+            
+            <p>If you need any assistance or have security concerns, please contact our support team immediately.</p>
+            
+            <p>Best regards,<br>The Start Test Security Team</p>
+        </div>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 25px 0;">
+        
+        <div style="text-align: center; color: #666; font-size: 14px;">
+            <p style="margin: 0;">Start Test</p>
+            <p style="margin: 5px 0 0 0;">Your Trusted Examination Platform</p>
+            <p style="margin: 5px 0 0 0; font-size: 12px; color: #888;">This is an automated security message, please do not reply.</p>
+        </div>
+    </div>
+</div>
       `,
     });
     console.log(`Password reset email sent to ${email}`);
@@ -102,5 +192,5 @@ const sendPasswordResetEmail = async (email, token) => {
 module.exports = {
   sendVerificationEmail,
   sendPasswordResetEmail,
-  sendInviteViaEmail
+  sendInviteViaEmail,
 };

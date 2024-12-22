@@ -7,7 +7,7 @@ const {
 } = require("../utils/email");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-
+const { v4: uuidv4 } = require("uuid");
 const register = async (req, res) => {
   try {
     const { email, password, firstName, lastName, receiveUpdates } = req.body;
@@ -160,8 +160,8 @@ const forgotPassword = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Generate reset token
-    const resetToken = crypto.randomBytes(32).toString("hex");
+    // Generate a 6-character alphanumeric token
+    const resetToken = uuidv4().replace(/-/g, "").slice(0, 6);
     user.resetPasswordToken = resetToken;
     user.resetPasswordTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
@@ -182,7 +182,6 @@ const forgotPassword = async (req, res) => {
 const resetPassword = async (req, res) => {
   try {
     const { token, newPassword } = req.body;
-
     const user = await User.findOne({
       resetPasswordToken: token,
       resetPasswordTokenExpiry: { $gt: Date.now() },
@@ -235,10 +234,7 @@ const verifyEmail = async (req, res) => {
     user.verificationTokenExpiry = undefined;
     await user.save();
 
-    return res.redirect(
-      `${process.env.CORS_ORIGIN}/login`
-    );
-    
+    return res.redirect(`${process.env.CORS_ORIGIN}/login`);
   } catch (error) {
     res.status(500).json({
       message: "Error verifying email",
