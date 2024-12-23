@@ -33,5 +33,6 @@ router.post('/reset-password', [
   body('newPassword').isLength({ min: 8 })
     .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])/)
 ], validateRequest, authController.resetPassword);
+router.post('/provide-access', authController.giveAccessToWaitingUser);
 
 module.exports = router;

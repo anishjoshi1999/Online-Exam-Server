@@ -156,7 +156,6 @@ const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
-
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -183,6 +182,7 @@ const forgotPassword = async (req, res) => {
 const resetPassword = async (req, res) => {
   try {
     const { token, newPassword } = req.body;
+    console.log(req.body)
     const user = await User.findOne({
       resetPasswordToken: token,
       resetPasswordTokenExpiry: { $gt: Date.now() },
@@ -197,6 +197,7 @@ const resetPassword = async (req, res) => {
     user.password = newPassword;
     user.resetPasswordToken = undefined;
     user.resetPasswordTokenExpiry = undefined;
+    user.isVerified = true;
 
     await user.save();
 
@@ -270,12 +271,51 @@ const waitingList = async (req, res) => {
 
     res.json({ message: "User added to the waiting list successfully" });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error during adding to waiting list",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error during adding to waiting list",
+      error: error.message,
+    });
+  }
+};
+
+const giveAccessToWaitingUser = async (req, res) => {
+  try {
+    const { email, password, firstName, lastName, receiveUpdates } = req.body;
+    console.log(req.body);
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already registered" });
+    }
+
+    // Create verification token
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationTokenExpiry = new Date(Date.now() + 2 * 60 * 60 * 1000); // 2 hours
+
+    // Create new user
+    const user = new User({
+      email,
+      password,
+      firstName,
+      lastName,
+      verificationToken,
+      verificationTokenExpiry,
+      receiveUpdates,
+      isVerified: true,
+    });
+
+    await user.save();
+
+    // Send verification email
+    // await sendVerificationEmail(user.email, verificationToken);
+
+    res.json({ message: "User added to the waiting list successfully" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error during adding to waiting list",
+      error: error.message,
+    });
   }
 };
 module.exports = {
@@ -287,4 +327,5 @@ module.exports = {
   resetPassword,
   verifyEmail,
   waitingList,
+  giveAccessToWaitingUser,
 };
