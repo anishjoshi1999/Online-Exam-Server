@@ -182,7 +182,6 @@ const forgotPassword = async (req, res) => {
 const resetPassword = async (req, res) => {
   try {
     const { token, newPassword } = req.body;
-    console.log(req.body)
     const user = await User.findOne({
       resetPasswordToken: token,
       resetPasswordTokenExpiry: { $gt: Date.now() },
@@ -280,8 +279,7 @@ const waitingList = async (req, res) => {
 
 const giveAccessToWaitingUser = async (req, res) => {
   try {
-    const { email, password, firstName, lastName, receiveUpdates } = req.body;
-    console.log(req.body);
+    const { email, firstName, lastName, receiveUpdates } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -292,17 +290,16 @@ const giveAccessToWaitingUser = async (req, res) => {
     // Create verification token
     const verificationToken = crypto.randomBytes(32).toString("hex");
     const verificationTokenExpiry = new Date(Date.now() + 2 * 60 * 60 * 1000); // 2 hours
-
+    let password = uuidv4().replace(/-/g, "").slice(0, 9);
     // Create new user
     const user = new User({
       email,
-      password,
+      password:password,
       firstName,
       lastName,
       verificationToken,
       verificationTokenExpiry,
       receiveUpdates,
-      isVerified: true,
     });
 
     await user.save();
@@ -310,7 +307,7 @@ const giveAccessToWaitingUser = async (req, res) => {
     // Send verification email
     // await sendVerificationEmail(user.email, verificationToken);
 
-    res.json({ message: "User added to the waiting list successfully" });
+    res.json({ message: "User account Created for StartTest.Online added to the waiting list successfully" });
   } catch (error) {
     res.status(500).json({
       message: "Error during adding to waiting list",

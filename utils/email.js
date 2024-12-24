@@ -71,6 +71,58 @@ const sendVerificationEmail = async (email, token) => {
   }
 };
 
+const sendAccountCreationConfirmationEmail = async (email) => {
+  try {
+    const response = await mg.messages.create(DOMAIN, {
+      from: `Start Test Support <mailgun@${DOMAIN}>`,
+      to: email,
+      subject: "Your Account Has Been Successfully Created",
+      html: `
+       <div style="margin: 0; padding: 20px; background-color: #f5f5f5; font-family: Arial, sans-serif;">
+          <div style="max-width: 600px; margin: auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              <div style="text-align: center; margin-bottom: 30px;">
+                  <h2 style="color: #2C3E50; margin: 0; font-size: 24px;">Welcome to Start Test</h2>
+              </div>
+              
+              <div style="color: #444; line-height: 1.6;">
+                  <p style="margin-top: 0;">Dear User,</p>
+                  
+                  <p>Your account has been successfully created from the waiting list! To log in, use the email address you provided while filling out the waiting list.</p>
+                  
+                  <p>If you forget your password, you can reset it anytime by using the "Forgot Password" option on our login page. Follow the steps to set a new password and enjoy exploring our platform!</p>
+                  
+                  <p>Once you're ready, you can start taking tests online with ease.</p>
+                  
+                  <div style="text-align: center; margin: 30px 0;">
+                      <a href="${loginUrl}" style="display: inline-block; padding: 14px 32px; background-color: #3498DB; color: white; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 16px; transition: background-color 0.3s ease;">
+                          Log In Now
+                      </a>
+                  </div>
+                  
+                  <p>If you have any questions or need assistance, feel free to contact our support team.</p>
+                  
+                  <p>Best regards,<br>The Start Test Team</p>
+              </div>
+              
+              <hr style="border: none; border-top: 1px solid #eee; margin: 25px 0;">
+              
+              <div style="text-align: center; color: #666; font-size: 14px;">
+                  <p style="margin: 0;">Start Test</p>
+                  <p style="margin: 5px 0 0 0;">Your Trusted Examination Platform</p>
+                  <p style="margin: 5px 0 0 0; font-size: 12px; color: #888;">This is an automated message, please do not reply.</p>
+              </div>
+          </div>
+      </div>
+      `,
+    });
+    return response;
+  } catch (error) {
+    console.error("Error sending confirmation email:", error);
+    throw error;
+  }
+};
+
+
 const sendInviteViaEmail = async (emailList, code) => {
   try {
     const response = await mg.messages.create(DOMAIN, {
@@ -193,4 +245,5 @@ module.exports = {
   sendVerificationEmail,
   sendPasswordResetEmail,
   sendInviteViaEmail,
+  sendAccountCreationConfirmationEmail
 };
