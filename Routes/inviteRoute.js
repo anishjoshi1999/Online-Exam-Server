@@ -5,7 +5,6 @@ const { authenticateToken } = require("../Middleware/auth");
 
 // Routes
 
-router.post("/", authenticateToken, inviteController.inviteAndProvideAccess); 
-router.post("/create-and-provide-access", authenticateToken, inviteController.createAndProvideAccess); 
+router.post("/", authenticateToken, inviteController.inviteAndProvideAccess);  
 
 module.exports = router;

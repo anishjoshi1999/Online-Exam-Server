@@ -151,7 +151,7 @@ const sendInviteViaEmail = async (emailList, code) => {
                 <strong style="display: block; margin-bottom: 10px;">Instructions:</strong>
                 <ol style="margin: 0; padding-left: 20px;">
                     <li>Visit <a href="https://starttest.online" style="color: #3498DB; text-decoration: none; font-weight: 500;">starttest.online</a></li>
-                    <li>Log in to your account</li>
+                    <li>Log in or sign up on StartTest.online using this email</li>
                     <li>Navigate to "Start Exam"</li>
                     <li>Enter your access code</li>
                     <li>Begin your exam</li>

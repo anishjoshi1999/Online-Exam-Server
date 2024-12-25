@@ -54,17 +54,15 @@ const inviteAndProvideAccess = async (req, res) => {
         .status(401)
         .json({ message: "You are not authorized to Create Exam" });
     }
-
+    // Filter out invalid emails and normalize valid ones
     const filteredEmail = processEmailList(emails);
-
-    const userIds = await getUserIdsByEmails(filteredEmail);
     const exam = await Exam.findOne({ userId: req.user.userId, slug });
 
     if (!exam) {
       return res.status(404).json({ message: "Exam not found!" });
     }
-
-    const updatedAccess = [...new Set([...exam.access, ...userIds])];
+    // Update the access field with the new email list
+    const updatedAccess = [...new Set([...exam.access, ...filteredEmail])];
 
     // Update the access field directly without triggering `pre('save')`
     await Exam.findByIdAndUpdate(
@@ -73,7 +71,7 @@ const inviteAndProvideAccess = async (req, res) => {
       { new: true }
     );
     try {
-      await sendInviteViaEmail(filteredEmail, slug);
+      // await sendInviteViaEmail(filteredEmail, slug);
     } catch (error) {
       return res.status(401).json({
         message: "Exam access is provided but failed to send email",

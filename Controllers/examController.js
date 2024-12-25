@@ -8,19 +8,18 @@ const BULK_WRITE_THRESHOLD = 1;
 const fetchExam = async (req, res) => {
   try {
     try {
-      console.log(req.params.slug)
       // Save the new exam to the database
       const exam = await Exam.findOne({
         slug: req.params.slug,
         isDeleted: false,
       });
-      console.log(exam)
       if (!exam) {
         return res
           .status(404)
           .json({ success: false, message: "Exam not found." });
       }
-      let hasAccess = exam.access.includes(req.user.userId);
+      let user = await User.findById(req.user.userId).select("email");
+      let hasAccess = exam.access.includes(user.email);
       if (hasAccess) {
         // User has access
         console.log("User has access to the exam.");
@@ -42,12 +41,10 @@ const fetchExam = async (req, res) => {
       } else {
         // User does not have access
         console.log("User does not have access to the exam.");
-        return res
-          .status(401)
-          .json({
-            success: false,
-            message: "User does not have access to the exam.",
-          });
+        return res.status(401).json({
+          success: false,
+          message: "User does not have access to the exam.",
+        });
       }
     } catch (error) {
       console.error(error); // Improved error logging
