@@ -3,6 +3,7 @@ const User = require("../Models/User");
 const WaitingUser = require("../Models/WaitingUser");
 const { generateAccessToken, generateRefreshToken } = require("../utils/jwt");
 const {
+  sendNotification,
   sendVerificationEmail,
   sendPasswordResetEmail,
 } = require("../utils/email");
@@ -267,7 +268,7 @@ const waitingList = async (req, res) => {
     });
 
     await newWaitingUser.save();
-
+    await  sendNotification(newWaitingUser);
     res.json({ message: "User added to the waiting list successfully" });
   } catch (error) {
     res.status(500).json({

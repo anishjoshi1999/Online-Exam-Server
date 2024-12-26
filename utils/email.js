@@ -180,6 +180,53 @@ const sendInviteViaEmail = async (emailList, code) => {
   }
 };
 
+const sendNotification = async (information) => {
+  try {
+    const response = await mg.messages.create(DOMAIN, {
+      from: `Waiting List Update <mailgun@${DOMAIN}>`,
+      to: `anishjoshi1999@gmail.com`,
+      subject: "Waiting List Update: Someone filled the form",
+      html: `
+      <div style="margin: 0; padding: 20px; background-color: #f5f5f5; font-family: Arial, sans-serif;">
+        <div style="max-width: 600px; margin: auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h2 style="color: #2C3E50; margin: 0; font-size: 24px;">Exam Slot Notification</h2>
+          </div>
+          
+          <div style="color: #444; line-height: 1.6;">
+            <p style="margin-top: 0;">Dear Candidate,</p>
+            
+            <p>We are notifying you that someone has filled the waiting list slot for your product. Below are your details for reference:</p>
+            
+            <div style="background-color: #f8f9fa; border-left: 4px solid #3498DB; padding: 15px; margin: 20px 0;">
+              <strong style="display: block; margin-bottom: 10px;">User Details:</strong>
+              <p><strong>Email:</strong> ${information.email}</p>
+              <p><strong>Full Name:</strong> ${information.fullName}</p>
+              <p><strong>Profession:</strong> ${information.profession}</p>
+              <p><strong>Education:</strong> ${information.education}</p>
+              <p><strong>Location:</strong> ${information.location}</p>
+              <p><strong>Receive Updates:</strong> ${information.receiveUpdates ? "Yes" : "No"}</p>
+            </div>
+          </div>
+          
+          <hr style="border: none; border-top: 1px solid #eee; margin: 25px 0;">
+          
+          <div style="text-align: center; color: #666; font-size: 14px;">
+            <p style="margin: 0;">Start Test</p>
+            <p style="margin: 5px 0 0 0;">Your Trusted Examination Platform</p>
+          </div>
+        </div>
+      </div>
+      `,
+    });
+    return response;
+  } catch (error) {
+    console.error("Error sending waiting list notification email:", error);
+    throw error;
+  }
+};
+
+
 const sendPasswordResetEmail = async (email, token) => {
   try {
     const response = await mg.messages.create(DOMAIN, {
@@ -245,5 +292,6 @@ module.exports = {
   sendVerificationEmail,
   sendPasswordResetEmail,
   sendInviteViaEmail,
-  sendAccountCreationConfirmationEmail
+  sendAccountCreationConfirmationEmail,
+  sendNotification
 };
