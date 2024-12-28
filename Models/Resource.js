@@ -15,12 +15,13 @@ const SubjectSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User", // Assuming you have a User model to track who created the subject
       required: true,
-    }
+    },
   },
   { timestamps: true }
 );
 
-const Subject = mongoose.models.Subject || mongoose.model("Subject", SubjectSchema);
+const Subject =
+  mongoose.models.Subject || mongoose.model("Subject", SubjectSchema);
 
 // Define the Resource Schema
 const ResourceSchema = new mongoose.Schema(
@@ -47,7 +48,12 @@ const ResourceSchema = new mongoose.Schema(
       enum: ["notes", "ppt", "assignments", "others"],
       default: "others",
     },
-    googleDriveLink: {
+    resourceType: {
+      type: String,
+      enum: ["lectures", "notes"],
+      required: true,
+    },
+    resourceLink: {
       type: String,
       required: true,
     },
@@ -60,6 +66,7 @@ const ResourceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Resource = mongoose.models.Resource || mongoose.model("Resource", ResourceSchema);
+const Resource =
+  mongoose.models.Resource || mongoose.model("Resource", ResourceSchema);
 
 module.exports = { Resource, Subject };
