@@ -11,6 +11,7 @@ const examRoutes = require("./Routes/examRoute");
 const performanceRoutes = require("./Routes/performanceRoute");
 const participationRoutes = require("./Routes/participationRoute");
 const inviteRoutes = require("./Routes/inviteRoute");
+const resourceRoutes = require("./Routes/resourceRoute");
 const logger = require("./config/logger"); // Import the logger
 const app = express();
 
@@ -58,6 +59,7 @@ app.use("/api/take-exam", examRoutes);
 app.use("/api/view-performance", performanceRoutes);
 app.use("/api/view-participation", participationRoutes);
 app.use("/api/invite-participant", inviteRoutes);
+app.use("/api/upload-resources", resourceRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);

@@ -135,7 +135,6 @@ const refreshToken = async (req, res) => {
 const logout = async (req, res) => {
   try {
     const { refreshToken } = req.cookies;
-
     // Clear refresh token in database
     await User.findOneAndUpdate(
       { refreshToken },
