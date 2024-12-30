@@ -56,22 +56,38 @@ const inviteAndProvideAccess = async (req, res) => {
     }
     // Filter out invalid emails and normalize valid ones
     const filteredEmail = processEmailList(emails);
+    if (filteredEmail.length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No valid emails provided" });
+    }
     const exam = await Exam.findOne({ userId: req.user.userId, slug });
 
     if (!exam) {
       return res.status(404).json({ message: "Exam not found!" });
     }
-    // Update the access field with the new email list
-    const updatedAccess = [...new Set([...exam.access, ...filteredEmail])];
+    // Filter out emails that already exist in the access list
+    const newEmails = filteredEmail.filter(
+      (email) => !exam.access.includes(email)
+    );
+    if (newEmails.length === 0) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "All provided emails already have access to this exam",
+        });
+    }
 
     // Update the access field directly without triggering `pre('save')`
     await Exam.findByIdAndUpdate(
       exam._id,
-      { $set: { access: updatedAccess } },
+      { $addToSet: { access: { $each: newEmails } } },
       { new: true }
     );
+
     try {
-      // await sendInviteViaEmail(filteredEmail, slug);
+      await sendInviteViaEmail(filteredEmail, slug);
     } catch (error) {
       return res.status(401).json({
         message: "Exam access is provided but failed to send email",

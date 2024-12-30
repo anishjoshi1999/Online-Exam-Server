@@ -38,7 +38,6 @@ var ExamSchema = new mongoose.Schema(
     access: {
       type: [String],
       default: [], // Default value for the array
-      unique: true
     },
   },
   { timestamps: true }
