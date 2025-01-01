@@ -1,6 +1,14 @@
 const User = require("../Models/User");
 const { Resource, Subject } = require("../Models/Resource");
+const multer = require("multer");
+const upload = multer();
+const B2 = require("backblaze-b2");
+const uploadService = require("../services/uploadService");
 
+const b2 = new B2({
+  applicationKeyId: process.env.B2_APP_KEY_ID,
+  applicationKey: process.env.B2_APP_KEY,
+});
 const uploadNotes = async (req, res) => {
   try {
     const { title, description, category, googleDriveLink, subjectName } =
@@ -73,50 +81,58 @@ const fetchSubjects = async (req, res) => {
 };
 const uploadLectures = async (req, res) => {
   try {
-    console.log(req.body);
-    const { title, description, youtubeLink, subjectName } = req.body;
-    // Validate the incoming data structure
-    if (!title || !description || !youtubeLink || !subjectName) {
-      return res.status(400).json({ success: false, message: "Invalid data" });
+    const { subjectName, title, description } = req.body;
+    const videoFile = req.file;
+
+    if (!videoFile) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields",
+      });
     }
 
-    let userInfo = await User.findById(req.user.userId);
+    const userInfo = await User.findById(req.user.userId);
     if (userInfo.role !== "admin") {
-      return res
-        .status(401)
-        .json({ message: "You are not authorized to create a resource" });
+      return res.status(401).json({
+        success: false,
+        message: "You are not authorized to upload videos",
+      });
     }
 
-    // Check if the subject exists or create a new one
-    let subject = await Subject.findOne({
-      name: subjectName,
-      createdBy: req.user.userId,
-    });
-    if (!subject) {
-      // Create new subject if it doesn't exist
-      subject = new Subject({ name: subjectName, createdBy: req.user.userId });
-      await subject.save();
+    const { url: videoUrl } = await uploadService.uploadToB2(videoFile);
+    // Check if the subject exists
+    const subjectData = await Subject.findOne({ name: subjectName });
+    if (!subjectData) {
+      return res.status(404).json({
+        success: false,
+        message: "Subject not found",
+      });
     }
-
-    // Create a new resource instance with the received data
-    const newResource = new Resource({
-      subjectName: subject._id, // Reference to the Subject model
+    // Create a new resource
+    const resource = new Resource({
+      subjectName: subjectData._id, // Referencing the subject
       title: title,
       description: description,
       category: "others",
-      resourceLink: youtubeLink,
-      createdBy: req.user.userId,
       resourceType: "lectures",
+      resourceLink: videoUrl, // videoUrl,
+      createdBy: req.user.userId, // Assign the user who uploaded the resource
     });
 
-    // Save the new resource instance
-    await newResource.save();
-    return res.status(201).json({ message: "Resource uploaded successfully!" });
+    await resource.save();
+
+    return res.status(201).json({
+      success: true,
+      message: "Video uploaded successfully!",
+      videoUrl: "videoUrl",
+    });
   } catch (error) {
-    console.error(error); // Improved error logging
-    return res
-      .status(500)
-      .json({ message: "Error during resource upload", error: error.message });
+    console.error("Upload error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error uploading video",
+      error: error.message,
+    });
   }
 };
 
@@ -248,5 +264,5 @@ module.exports = {
   fetchNotes,
   fetchLectures,
   fetchSubjectNotes,
-  fetchSubjectLectures
+  fetchSubjectLectures,
 };
