@@ -10,6 +10,7 @@ const {
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
+const createNotification = require("../utils/createNotification");
 const register = async (req, res) => {
   try {
     const { email, password, firstName, lastName, receiveUpdates, userType } =
@@ -36,9 +37,8 @@ const register = async (req, res) => {
       receiveUpdates,
       role: userType,
     });
-
     await user.save();
-
+    await createNotification(user._id,"Welcome to StartTest.Online")  
     // Send verification email
     await sendVerificationEmail(user.email, verificationToken);
 

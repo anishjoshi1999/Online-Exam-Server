@@ -50,5 +50,5 @@ ResultSchema.pre("save", function (next) {
   next();
 });
 
-var Result = mongoose.models.Result || mongoose.model("Result", ResultSchema);
+const Result = mongoose.models.Result || mongoose.model("Result", ResultSchema);
 module.exports = Result;

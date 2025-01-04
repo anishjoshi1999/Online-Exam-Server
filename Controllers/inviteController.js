@@ -1,5 +1,7 @@
 const User = require("../Models/User");
 const Exam = require("../Models/Exam");
+const Notification = require("../Models/Notification");
+const bulkNotification = require("../utils/bulkNotification");
 const { sendInviteViaEmail } = require("../utils/email");
 const { isEmail, normalizeEmail } = require("validator");
 const { v4: uuidv4 } = require("uuid");
@@ -80,12 +82,13 @@ const inviteAndProvideAccess = async (req, res) => {
     }
 
     // Update the access field directly without triggering `pre('save')`
-    await Exam.findByIdAndUpdate(
+    let updatedExam = await Exam.findByIdAndUpdate(
       exam._id,
       { $addToSet: { access: { $each: newEmails } } },
       { new: true }
     );
-
+    const users = await User.find({ email: { $in: updatedExam.access } }, "_id");
+    await bulkNotification(users, `You have been granted access to the exam: ${slug}`);
     try {
       await sendInviteViaEmail(filteredEmail, slug);
     } catch (error) {
@@ -106,7 +109,6 @@ const inviteAndProvideAccess = async (req, res) => {
       .json({ message: "Error during registration", error: error.message });
   }
 };
-
 const createAndProvideAccess = async (req, res) => {
   try {
     let { emails, slug } = req.body;
