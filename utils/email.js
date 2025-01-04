@@ -139,7 +139,7 @@ const sendInviteViaEmail = async (emailList, code) => {
         <div style="color: #444; line-height: 1.6;">
             <p style="margin-top: 0;">Dear Candidate,</p>
             
-            <p>You have been invited to take an exam on Start Test. Below you'll find your unique access code:</p>
+            <p>You have been invited to take an exam on Start Test. Below you'll find your Exam access code:</p>
             
             <div style="text-align: center; margin: 25px 0;">
                 <div style="display: inline-block; padding: 15px 30px; background-color: #3498DB; color: white; font-size: 22px; font-weight: bold; border-radius: 6px; letter-spacing: 1px;">
@@ -152,7 +152,7 @@ const sendInviteViaEmail = async (emailList, code) => {
                 <ol style="margin: 0; padding-left: 20px;">
                     <li>Visit <a href="https://starttest.online" style="color: #3498DB; text-decoration: none; font-weight: 500;">starttest.online</a></li>
                     <li>Log in or sign up on StartTest.online using this email</li>
-                    <li>Navigate to "Start Exam"</li>
+                    <li>Navigate to "Start Test"</li>
                     <li>Enter your access code</li>
                     <li>Begin your exam</li>
                 </ol>

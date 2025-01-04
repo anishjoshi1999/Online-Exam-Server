@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const inviteController = require("../Controllers/inviteController");
+const notifyController = require("../Controllers/notifyController");
 const { authenticateToken } = require("../Middleware/auth");
 
 // Routes
 
-router.post("/", authenticateToken, inviteController.inviteAndProvideAccess);
+router.get("/", authenticateToken, notifyController.fetchNotification);
 
 module.exports = router;

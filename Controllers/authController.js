@@ -12,8 +12,8 @@ const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 const register = async (req, res) => {
   try {
-    const { email, password, firstName, lastName, receiveUpdates } = req.body;
-    console.log(req.body);
+    const { email, password, firstName, lastName, receiveUpdates, userType } =
+      req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -34,6 +34,7 @@ const register = async (req, res) => {
       verificationToken,
       verificationTokenExpiry,
       receiveUpdates,
+      role: userType,
     });
 
     await user.save();
@@ -267,7 +268,7 @@ const waitingList = async (req, res) => {
     });
 
     await newWaitingUser.save();
-    await  sendNotification(newWaitingUser);
+    await sendNotification(newWaitingUser);
     res.json({ message: "User added to the waiting list successfully" });
   } catch (error) {
     res.status(500).json({
@@ -294,7 +295,7 @@ const giveAccessToWaitingUser = async (req, res) => {
     // Create new user
     const user = new User({
       email,
-      password:password,
+      password: password,
       firstName,
       lastName,
       verificationToken,
@@ -307,7 +308,10 @@ const giveAccessToWaitingUser = async (req, res) => {
     // Send verification email
     // await sendVerificationEmail(user.email, verificationToken);
 
-    res.json({ message: "User account Created for StartTest.Online added to the waiting list successfully" });
+    res.json({
+      message:
+        "User account Created for StartTest.Online added to the waiting list successfully",
+    });
   } catch (error) {
     res.status(500).json({
       message: "Error during adding to waiting list",
