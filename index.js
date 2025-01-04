@@ -6,6 +6,7 @@ const helmet = require("helmet");
 const { RateLimiterMemory } = require("rate-limiter-flexible");
 const connectDB = require("./config/database");
 const authRoutes = require("./Routes/authRoute");
+const accessRoutes = require("./Routes/accessRoute");
 const mcqRoutes = require("./Routes/mcqRoute");
 const examRoutes = require("./Routes/examRoute");
 const performanceRoutes = require("./Routes/performanceRoute");
@@ -54,6 +55,7 @@ app.get("/", (req, res) => {
 });
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/access", accessRoutes);
 app.use("/api/mcq", mcqRoutes);
 app.use("/api/take-exam", examRoutes);
 app.use("/api/view-performance", performanceRoutes);

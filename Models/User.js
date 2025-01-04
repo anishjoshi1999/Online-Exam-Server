@@ -33,6 +33,16 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      validate: {
+        validator: function () {
+          return this.role !== "user" || !!this.createdBy;
+        },
+        message: "createdBy is required for users with role 'user'.",
+      },
+    },
     verificationToken: String,
     verificationTokenExpiry: Date,
     resetPasswordToken: String,

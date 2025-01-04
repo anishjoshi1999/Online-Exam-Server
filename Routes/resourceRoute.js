@@ -13,21 +13,26 @@ const upload = multer({
     fileSize: 100 * 1024 * 1024, // 100MB limit
   },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('video/')) {
+    if (file.mimetype.startsWith("video/")) {
       cb(null, true);
     } else {
-      cb(new Error('Not a video file!'), false);
+      cb(new Error("Not a video file!"), false);
     }
-  }
+  },
 });
 
 // Routes
 router.post(
-    "/upload-lectures",
-    authenticateToken,
-    upload.single("file"),
-    resourceController.uploadLectures
-  );
+  "/upload-lectures",
+  authenticateToken,
+  upload.single("file"),
+  resourceController.uploadLectures
+);
+router.post(
+  "/upload-subject",
+  authenticateToken,
+  resourceController.uploadSubject
+);
 router.get(
   "/get-one-subject-notes",
   authenticateToken,
@@ -50,6 +55,5 @@ router.get(
   resourceController.fetchSubjects
 );
 router.post("/upload-notes", authenticateToken, resourceController.uploadNotes);
-
 
 module.exports = router;

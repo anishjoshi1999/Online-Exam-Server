@@ -63,6 +63,49 @@ const uploadNotes = async (req, res) => {
       .json({ message: "Error during resource upload", error: error.message });
   }
 };
+const uploadSubject = async (req, res) => {
+  try {
+    const { subjectName } = req.body;
+
+    // Validate the incoming data structure
+    if (!subjectName || typeof subjectName !== "string" || subjectName.trim().length === 0) {
+      return res.status(400).json({ success: false, message: "Invalid subject name provided" });
+    }
+
+    // Retrieve user information and validate authorization
+    const userInfo = await User.findById(req.user.userId);
+    if (!userInfo) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    if (userInfo.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to create a resource" });
+    }
+
+    // Check if the subject already exists
+    const existingSubject = await Subject.findOne({
+      name: subjectName.trim(),
+      createdBy: req.user.userId,
+    });
+    if (existingSubject) {
+      return res.status(409).json({ message: "Subject already exists" });
+    }
+
+    // Create new subject
+    const subject = new Subject({ name: subjectName.trim(), createdBy: req.user.userId });
+    await subject.save();
+
+    return res.status(201).json({ success: true, message: "Subject uploaded successfully!" });
+  } catch (error) {
+    console.error("Error during subject upload:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error during resource upload",
+      error: error.message,
+    });
+  }
+};
 
 const fetchSubjects = async (req, res) => {
   try {
@@ -265,4 +308,5 @@ module.exports = {
   fetchLectures,
   fetchSubjectNotes,
   fetchSubjectLectures,
+  uploadSubject
 };
