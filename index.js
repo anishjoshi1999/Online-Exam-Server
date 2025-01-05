@@ -58,7 +58,7 @@ app.use("/api/mcq", mcqRoutes);
 app.use("/api/take-exam", examRoutes);
 app.use("/api/view-performance", performanceRoutes);
 app.use("/api/view-participation", participationRoutes);
-app.use("/api/invite-participant", inviteRoutes);
+app.use("/api/invite", inviteRoutes);
 app.use("/api/notifications", notifyRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {

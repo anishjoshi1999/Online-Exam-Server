@@ -1,62 +1,78 @@
 const User = require("../Models/User");
 const Exam = require("../Models/Exam");
 const Result = require("../Models/Result");
+const Participant = require("../Models/Participant");
 const { redis } = require("../utils/redis");
 const QUEUE_KEY = "submissionQueue";
 const BULK_WRITE_THRESHOLD = 1;
 
 const fetchExam = async (req, res) => {
   try {
-    try {
-      // Save the new exam to the database
-      const exam = await Exam.findOne({
-        slug: req.params.slug,
-        isDeleted: false,
+    // Fetch the exam by slug and ensure it's not deleted
+    const exam = await Exam.findOne({
+      slug: req.params.slug,
+      isDeleted: false,
+    });
+
+    if (!exam) {
+      return res.status(404).json({
+        success: false,
+        message: "Exam not found.",
       });
-      if (!exam) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Exam not found." });
-      }
-      let user = await User.findById(req.user.userId).select("email");
-      let hasAccess = exam.access.includes(user.email);
-      if (hasAccess) {
-        // User has access
-        console.log("User has access to the exam.");
-        const result = await Result.findOne({
-          examName: req.params.slug,
-          examTakenBy: req.user.userId,
-        });
-        if (
-          result &&
-          result.userEnrolledInExam === true &&
-          result.paperSubmittedInExam === true
-        ) {
-          return res.status(423).json({
-            success: false,
-            message: "You have already taken the exam",
-          });
-        }
-        return res.status(200).json({ success: true, exam, result });
-      } else {
-        // User does not have access
-        console.log("User does not have access to the exam.");
-        return res.status(401).json({
-          success: false,
-          message: "User does not have access to the exam.",
-        });
-      }
-    } catch (error) {
-      console.error(error); // Improved error logging
-      return res.status(400).json({ success: false, error: error.message });
     }
+
+    // Fetch user email
+    const user = await User.findById(req.user.userId).select("email");
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    // Check if the user is invited to the exam
+    const access = await Participant.findOne({
+      slug: req.params.slug,
+      email: user.email,
+    }).select("invited");
+
+    if (!access?.invited) {
+      return res.status(401).json({
+        success: false,
+        message: "User does not have access to the exam.",
+      });
+    }
+
+    // Check the result to determine if the user has already taken the exam
+    const result = await Result.findOne({
+      examName: req.params.slug,
+      examTakenBy: req.user.userId,
+    });
+
+    if (result?.userEnrolledInExam && result?.paperSubmittedInExam) {
+      return res.status(423).json({
+        success: false,
+        message: "You have already taken the exam.",
+      });
+    }
+
+    // Return the exam and result if the user has access
+    return res.status(200).json({
+      success: true,
+      exam,
+      result,
+    });
   } catch (error) {
-    res.status(500).json({
-      message: "Error during fetching the exam code",
+    console.error("Error fetching the exam:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching the exam.",
       error: error.message,
     });
   }
 };
+
 async function bulkWriteSubmissions(submissions) {
   // Perform a bulk write to MongoDB
   const bulkOps = submissions.map((submission) => ({

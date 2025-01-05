@@ -34,10 +34,6 @@ var ExamSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-    }, // Add username field with reference to User model
-    access: {
-      type: [String],
-      default: [], // Default value for the array
     },
   },
   { timestamps: true }
