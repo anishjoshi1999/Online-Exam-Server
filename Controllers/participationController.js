@@ -1,12 +1,11 @@
 const User = require("../Models/User");
 const Exam = require("../Models/Exam");
 const Result = require("../Models/Result");
-
+const { CheckIfUserIsAdmin } = require("../utils/CheckIfUserIsAdmin");
 const fetch = async (req, res) => {
   try {
     try {
-      let userInfo = await User.findById(req.user.userId);
-      if (userInfo.role != "admin") {
+      if (!(await CheckIfUserIsAdmin(req.user.userId))) {
         return res
           .status(401)
           .json({ message: "You are not authorized to Fetch Exam" });
@@ -31,8 +30,7 @@ const fetch = async (req, res) => {
 };
 const fetchResult = async (req, res) => {
   try {
-    let userInfo = await User.findById(req.user.userId);
-    if (userInfo.role != "admin") {
+    if (!(await CheckIfUserIsAdmin(req.user.userId))) {
       return res
         .status(401)
         .json({ message: "You are not authorized to Fetch Exam" });

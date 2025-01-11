@@ -5,68 +5,90 @@ const moment = require("moment-timezone");
 const {
   calculateExamStatistics,
 } = require("../utils/manage-exams/calculateExamStatistics");
+const { CheckIfUserIsAdmin } = require("../utils/CheckIfUserIsAdmin");
 const createOne = async (req, res) => {
   try {
     const { examDetails, questions } = req.body;
-    // Validate the incoming data structure
+
+    // Validate incoming data
     if (!examDetails || !questions) {
       return res.status(400).json({ success: false, message: "Invalid data" });
     }
-    let userInfo = await User.findById(req.user.userId);
-    if (userInfo.role != "admin") {
-      return res
-        .status(401)
-        .json({ message: "You are not authorized to Create Exam" });
+
+    // Check if the user is an admin
+    if (!(await CheckIfUserIsAdmin(req.user.userId))) {
+      return res.status(401).json({ message: "Unauthorized to create exam" });
     }
 
-    const startDateUTC = moment
-      .tz(examDetails.startDate, examDetails.timezone)
-      .utc()
-      .format();
-    const endDateUTC = moment
-      .tz(examDetails.endDate, examDetails.timezone)
-      .utc()
-      .format();
-    // Create a new exam instance with the received data
-    const newExam = new Exam({
-      examName: examDetails.examName, // Ensure this is provided
-      startDate: startDateUTC, // Ensure it's a Date object
-      endDate: endDateUTC, // Ensure it's a Date object
-      totalMarks: examDetails.totalMarks,
-      timezone: examDetails.timezone,
-      passMarks: examDetails.passMarks,
-      userId: req.user.userId,
-      questions: questions.map((question) => ({
-        question: question.question,
-        options: question.options,
-        correctAnswer: question.correctAnswer,
-        weight: question.weight,
-        explanation: question.explanation,
-      })),
-    });
-    try {
-      // Save the new exam to the database
-      await newExam.save(); // Save the exam with the generated slug
-      console.log("Exam created successfully!");
-      return res
-        .status(201)
-        .json({ message: "Exam created successfully!", slug: newExam.slug });
-    } catch (error) {
-      console.error(error); // Improved error logging
-      return res.status(400).json({ success: false, error: error.message });
+    const { startDate, endDate, timezone, examName, totalMarks, passMarks } =
+      examDetails;
+
+    // Convert dates to UTC
+    const startDateUTC = moment.tz(startDate, timezone).utc();
+    const endDateUTC = moment.tz(endDate, timezone).utc();
+
+    // Validate date consistency
+    if (endDateUTC.isBefore(startDateUTC)) {
+      return res.status(400).json({
+        success: false,
+        message: "End date must not be earlier than start date",
+      });
     }
+    // Validate total marks consistency
+    const questionMarksSum = questions.reduce(
+      (sum, { weight }) => sum + weight,
+      0
+    );
+    if (questionMarksSum !== totalMarks) {
+      return res.status(400).json({
+        success: false,
+        message: `Total marks (${totalMarks}) must equal the sum of question weights (${questionMarksSum})`,
+      });
+    }
+    // Prepare questions data
+    const formattedQuestions = questions.map(
+      ({ question, options, correctAnswer, weight, explanation }) => ({
+        question,
+        options,
+        correctAnswer,
+        weight,
+        explanation,
+      })
+    );
+
+    // Create a new exam instance
+    const newExam = new Exam({
+      examName,
+      startDate: startDateUTC,
+      endDate: endDateUTC,
+      totalMarks,
+      passMarks,
+      timezone,
+      userId: req.user.userId,
+      questions: formattedQuestions,
+    });
+
+    // Save exam to the database
+    await newExam.save();
+
+    return res.status(201).json({
+      success: true,
+      message: "Exam created successfully!",
+      slug: newExam.slug,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error during registration", error: error.message });
+    return res.status(500).json({
+      success: false,
+      message: "Error during exam creation",
+      error: error.message,
+    });
   }
 };
 
 const findAll = async (req, res) => {
   try {
     const { page = 1, limit = 3 } = req.query; // Default to page 1 and limit 10
-    let userInfo = await User.findById(req.user.userId);
-    if (userInfo.role != "admin") {
+    if (!CheckIfUserIsAdmin(req.user.userId)) {
       return res
         .status(401)
         .json({ message: "You are not authorized to Create Exam" });
@@ -99,8 +121,7 @@ const findAll = async (req, res) => {
 
 const findOne = async (req, res) => {
   try {
-    let userInfo = await User.findById(req.user.userId);
-    if (userInfo.role != "admin") {
+    if (!(await CheckIfUserIsAdmin(req.user.userId))) {
       return res
         .status(401)
         .json({ message: "You are not authorized to Search Exam" });
@@ -134,8 +155,7 @@ const findOne = async (req, res) => {
 
 const findOneAndUpdate = async (req, res) => {
   try {
-    let userInfo = await User.findById(req.user.userId);
-    if (userInfo.role != "admin") {
+    if (!(await CheckIfUserIsAdmin(req.user.userId))) {
       return res
         .status(401)
         .json({ message: "You are not authorized to Update Exam" });
@@ -173,8 +193,7 @@ const findOneAndUpdate = async (req, res) => {
 
 const findOneAndDelete = async (req, res) => {
   try {
-    let userInfo = await User.findById(req.user.userId);
-    if (userInfo.role != "admin") {
+    if (!(await CheckIfUserIsAdmin(req.user.userId))) {
       return res
         .status(401)
         .json({ message: "You are not authorized to Delete Exam" });
