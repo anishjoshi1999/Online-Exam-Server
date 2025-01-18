@@ -34,17 +34,6 @@ const createOne = async (req, res) => {
         message: "End date must not be earlier than start date",
       });
     }
-    // Validate total marks consistency
-    const questionMarksSum = questions.reduce(
-      (sum, { weight }) => sum + weight,
-      0
-    );
-    if (questionMarksSum !== totalMarks) {
-      return res.status(400).json({
-        success: false,
-        message: `Total marks (${totalMarks}) must equal the sum of question weights (${questionMarksSum})`,
-      });
-    }
     // Prepare questions data
     const formattedQuestions = questions.map(
       ({ question, options, correctAnswer, weight, explanation }) => ({
@@ -55,7 +44,6 @@ const createOne = async (req, res) => {
         explanation,
       })
     );
-
     // Create a new exam instance
     const newExam = new Exam({
       examName,
