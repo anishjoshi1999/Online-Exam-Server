@@ -4,9 +4,6 @@ const Result = require("./Models/Result");
 const connectDB = require("./config/database");
 const winston = require("winston");
 
-// Connect to MongoDB
-connectDB();
-
 // Set up logger to log only to the console
 const logger = winston.createLogger({
   level: "info",
@@ -84,6 +81,8 @@ async function processQueue() {
         const parsedSubmissions = submissionsToWrite.map((item) =>
           JSON.parse(item)
         );
+        // Connect to MongoDB
+        connectDB();
         // Perform bulk write
         await bulkWriteSubmissions(parsedSubmissions);
       } else {

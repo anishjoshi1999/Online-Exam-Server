@@ -4,8 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
-    "start": "pm2 start index.js --watch && pm2 start worker.js --watch",
-     "poststart": "pm2 logs"
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "",
@@ -36,7 +35,6 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.7",
-    "pm2": "^5.4.3"
+    "nodemon": "^3.1.7"
   }
 }

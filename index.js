@@ -70,3 +70,6 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+// Start the worker in the background
+const { fork } = require("child_process");
+fork("./worker.js");
