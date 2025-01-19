@@ -88,7 +88,7 @@ async function processQueue() {
       } else {
         logger.info(`Not enough submissions for bulk write.`);
         logger.info("Queue is empty. Waiting for 60 seconds...");
-        await new Promise((resolve) => setTimeout(resolve, 60000));
+        await new Promise((resolve) => setTimeout(resolve, 600000));
         continue;
       }
     } catch (error) {
