@@ -101,12 +101,19 @@ const submitExam = async (req, res) => {
       },
     };
     try {
+      console.log("Initating redis push on the queue")
+      console.log("process.env.QUEUE_KEY",process.env.QUEUE_KEY)
       // Push submission to Redis queue
       await redis.rpush(process.env.QUEUE_KEY, JSON.stringify(submission));
       return res
         .status(201)
         .json({ success: true, message: "Submission queued successfully!" });
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error :", error);
+      return res
+      .status(500)
+      .json({ success: false, message: "Error processing submission." });
+    }
   } catch (error) {
     console.error("Error queuing submission:", error);
     return res
