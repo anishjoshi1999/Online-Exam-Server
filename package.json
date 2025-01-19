@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"nodemon index.js\" \"nodemon worker.js\"",
-    "start": "concurrently \"node index.js\" \"node worker.js\""
+    "dev": "nodemon index.js",
+    "start": "pm2 start index.js --watch && pm2 start worker.js --watch",
+     "poststart": "pm2 logs"
   },
   "keywords": [],
   "author": "",
@@ -35,7 +36,7 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2",
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "pm2": "^5.4.3"
   }
 }

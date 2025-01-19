@@ -24,7 +24,7 @@ const logger = winston.createLogger({
 
 // Constants
 const QUEUE_KEY = process.env.QUEUE_KEY;
-const BULK_WRITE_THRESHOLD = process.env.BULK_WRITE_THRESHOLD || 100;
+const BULK_WRITE_THRESHOLD = process.env.BULK_WRITE_THRESHOLD;
 
 // Validate required environment variables
 if (!QUEUE_KEY) {
@@ -35,6 +35,7 @@ if (!QUEUE_KEY) {
 // Perform a bulk write to MongoDB
 async function bulkWriteSubmissions(submissions) {
   try {
+    logger.info(`Preparing bulk write for ${submissions.length} submissions`);
     const bulkOps = submissions.map((submission) => ({
       updateOne: {
         filter: {
@@ -61,29 +62,36 @@ async function bulkWriteSubmissions(submissions) {
 
 // Process Redis queue
 async function processQueue() {
-  logger.info("Worker is enabled");
+  logger.info("Worker is enabled and waiting for submissions...");
 
   while (true) {
     try {
       const queueLength = await redis.llen(QUEUE_KEY);
       logger.info(`Queue Length: ${queueLength}`);
+      logger.info(`Bulk Write Threshold: ${BULK_WRITE_THRESHOLD}`);
+      if (queueLength >= BULK_WRITE_THRESHOLD) {
+        logger.info(
+          `Threshold reached, processing ${queueLength} submissions...`
+        );
+        const submissionsToWrite = await redis.lrange(
+          QUEUE_KEY,
+          0,
+          BULK_WRITE_THRESHOLD - 1
+        );
+        // Remove processed submissions from the queue
+        await redis.ltrim(QUEUE_KEY, BULK_WRITE_THRESHOLD, -1); // Remove processed submissions from the queue
 
-      if (queueLength === 0) {
-        logger.info("Queue is empty. Waiting for 5 seconds...");
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        const parsedSubmissions = submissionsToWrite.map((item) =>
+          JSON.parse(item)
+        );
+        // Perform bulk write
+        await bulkWriteSubmissions(parsedSubmissions);
+      } else {
+        logger.info(`Not enough submissions for bulk write.`);
+        logger.info("Queue is empty. Waiting for 60 seconds...");
+        await new Promise((resolve) => setTimeout(resolve, 60000));
         continue;
       }
-
-      const batchSize = Math.min(queueLength, BULK_WRITE_THRESHOLD);
-      logger.info(`Processing batch of ${batchSize} submissions`);
-
-      const submissionsToWrite = await redis.lrange(QUEUE_KEY, 0, batchSize - 1);
-      await redis.ltrim(QUEUE_KEY, batchSize, -1);
-
-      const parsedSubmissions = submissionsToWrite.map((item) => JSON.parse(item));
-      logger.info(`Parsed ${parsedSubmissions.length} submissions`);
-
-      await bulkWriteSubmissions(parsedSubmissions);
     } catch (error) {
       logger.error("Error processing queue: " + error.message);
     }
