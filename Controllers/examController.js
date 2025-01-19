@@ -1,10 +1,9 @@
+require("dotenv").config();
 const User = require("../Models/User");
 const Exam = require("../Models/Exam");
 const Result = require("../Models/Result");
 const Participant = require("../Models/Participant");
 const { redis } = require("../utils/redis");
-const QUEUE_KEY = "submissionQueue";
-const BULK_WRITE_THRESHOLD = 1;
 
 const fetchExam = async (req, res) => {
   try {
@@ -73,32 +72,6 @@ const fetchExam = async (req, res) => {
   }
 };
 
-async function bulkWriteSubmissions(submissions) {
-  // Perform a bulk write to MongoDB
-  const bulkOps = submissions.map((submission) => ({
-    updateOne: {
-      filter: {
-        examName: submission.examName,
-        examTakenBy: submission.examTakenBy,
-      },
-      update: {
-        timeTaken: submission.timeTaken,
-        answers: submission.answers,
-        userEnrolledInExam: true,
-        paperSubmittedInExam: true,
-        violences: submission.violences,
-      },
-      upsert: true,
-    },
-  }));
-
-  try {
-    await Result.bulkWrite(bulkOps);
-    console.log("Bulk write successful for submissions");
-  } catch (error) {
-    console.error("Error in bulk writing submissions:", error);
-  }
-}
 const submitExam = async (req, res) => {
   try {
     const { examName, timeTaken, answers, violences } = req.body;
@@ -129,27 +102,7 @@ const submitExam = async (req, res) => {
     };
     try {
       // Push submission to Redis queue
-      await redis.rpush(QUEUE_KEY, JSON.stringify(submission));
-      const queueLength = await redis.llen(QUEUE_KEY);
-
-      if (queueLength >= BULK_WRITE_THRESHOLD) {
-        const submissionsToWrite = await redis.lrange(
-          QUEUE_KEY,
-          0,
-          BULK_WRITE_THRESHOLD - 1
-        );
-
-        // Remove written items from the queue
-        await redis.ltrim(QUEUE_KEY, BULK_WRITE_THRESHOLD, -1);
-
-        // Convert stored strings to JSON objects
-        const parsedSubmissions = submissionsToWrite.map((item) =>
-          JSON.parse(item)
-        );
-
-        // Perform bulk write
-        await bulkWriteSubmissions(parsedSubmissions);
-      }
+      await redis.rpush(process.env.QUEUE_KEY, JSON.stringify(submission));
       return res
         .status(201)
         .json({ success: true, message: "Submission queued successfully!" });
