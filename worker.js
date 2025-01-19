@@ -69,8 +69,8 @@ async function processQueue() {
       logger.info(`Queue Length: ${queueLength}`);
 
       if (queueLength === 0) {
-        logger.info("Queue is empty. Waiting for 60 seconds...");
-        await new Promise((resolve) => setTimeout(resolve, 60000));
+        logger.info("Queue is empty. Waiting for 5 seconds...");
+        await new Promise((resolve) => setTimeout(resolve, 5000));
         continue;
       }
 
