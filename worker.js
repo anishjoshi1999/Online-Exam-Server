@@ -22,6 +22,7 @@ const logger = winston.createLogger({
 // Constants
 const QUEUE_KEY = process.env.QUEUE_KEY;
 const BULK_WRITE_THRESHOLD = process.env.BULK_WRITE_THRESHOLD;
+const WORKER_POLLING_IN_MILLISECONDS = process.env.WORKER_POLLING_IN_MILLISECONDS;  
 
 // Validate required environment variables
 if (!QUEUE_KEY) {
@@ -87,8 +88,8 @@ async function processQueue() {
         await bulkWriteSubmissions(parsedSubmissions);
       } else {
         logger.info(`Not enough submissions for bulk write.`);
-        logger.info("Queue is empty. Waiting for 60 seconds...");
-        await new Promise((resolve) => setTimeout(resolve, 600000));
+        logger.info(`Queue is empty. Waiting for ${WORKER_POLLING_IN_MILLISECONDS/(1000 * 60)} minutes...`);
+        await new Promise((resolve) => setTimeout(resolve, WORKER_POLLING_IN_MILLISECONDS));
         continue;
       }
     } catch (error) {
