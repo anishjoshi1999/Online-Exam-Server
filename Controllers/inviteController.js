@@ -1,7 +1,7 @@
 const User = require("../Models/User");
 const Participant = require("../Models/Participant");
 const { sendInviteViaEmail } = require("../utils/email");
-
+// Not using slug for now. Showing all participants across all exams.
 const addParticipant = async (req, res) => {
   try {
     const { email, slug } = req.body;
@@ -13,7 +13,6 @@ const addParticipant = async (req, res) => {
     const existingParticipant = await Participant.findOne({
       email,
       createdBy: req.user.userId,
-      slug,
     });
 
     if (existingParticipant) {
@@ -22,16 +21,13 @@ const addParticipant = async (req, res) => {
 
     const participant = new Participant({
       email,
-      slug,
       createdBy: req.user.userId,
     });
-
     await participant.save();
     return res
       .status(201)
       .json({ message: "Participant added successfully.", participant });
   } catch (error) {
-    console.error(error);
     return res
       .status(500)
       .json({ message: "Error during registration", error: error.message });
@@ -48,7 +44,6 @@ const sendEmail = async (req, res) => {
 
     const participant = await Participant.findOne({
       email,
-      slug,
       createdBy: req.user.userId,
     });
     if (!participant) {
@@ -92,7 +87,9 @@ const getParticipants = async (req, res) => {
     if (!slug) {
       return res.status(400).json({ message: "Slug is required." });
     }
-    const participants = await Participant.find({ slug });
+    const participants = await Participant.find({
+      createdBy: req.user.userId,
+    });
     res.status(200).json(participants);
   } catch (error) {
     res.status(500).json({ message: "Error fetching participants.", error });

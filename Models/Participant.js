@@ -6,14 +6,12 @@ const ParticipantSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
       lowercase: true,
     },
     slug: {
-        type: String,
-        required: true,
-      },
+      type: String,
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -26,8 +24,9 @@ const ParticipantSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-const Participant = mongoose.models.Participant || mongoose.model("Participant", ParticipantSchema);
+// Add unique compound index for email and slug
+ParticipantSchema.index({ email: 1, slug: 1 }, { unique: true });
+const Participant =
+  mongoose.models.Participant ||
+  mongoose.model("Participant", ParticipantSchema);
 module.exports = Participant;
-
-
