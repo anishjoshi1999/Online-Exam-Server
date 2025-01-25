@@ -288,10 +288,69 @@ const sendPasswordResetEmail = async (email, token) => {
     throw error;
   }
 };
+const sendInviteViaEmailForAdminAccess = async (emailList) => {
+  try {
+    const response = await mg.messages.create(DOMAIN, {
+      from: `Admin Access Granted <mailgun@${DOMAIN}>`,
+      to: [...emailList],
+      subject: "You Have Been Granted Admin Access to Conduct Online MCQ Exams",
+      html: `
+      <div style="margin: 0; padding: 20px; background-color: #f5f5f5; font-family: Arial, sans-serif;">
+    <div style="max-width: 600px; margin: auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h2 style="color: #2C3E50; margin: 0; font-size: 24px;">Admin Access Granted</h2>
+        </div>
+        
+        <div style="color: #444; line-height: 1.6;">
+            <p style="margin-top: 0;">Dear Admin,</p>
+            
+            <p>You have been granted <strong>admin access</strong> to conduct online MCQ exams for your students on <strong>Start Test</strong>. Simply log in to your account to get started.</p>
+            
+            <div style="background-color: #f8f9fa; border-left: 4px solid #3498DB; padding: 15px; margin: 20px 0;">
+                <strong style="display: block; margin-bottom: 10px;">Instructions:</strong>
+                <ol style="margin: 0; padding-left: 20px;">
+                    <li>Visit <a href="https://starttest.online" style="color: #3498DB; text-decoration: none; font-weight: 500;">starttest.online</a></li>
+                    <li>Log in to your account using this email address</li>
+                    <li>Start creating and managing exams for your students</li>
+                </ol>
+            </div>
+
+            <div style="text-align: center; margin: 25px 0;">
+                <p>Need help conducting an MCQ test? Watch this video tutorial:</p>
+                <a href="https://www.youtube.com/watch?v=1fIdpTr6qP4" style="display: inline-block; padding: 12px 24px; background-color: #3498DB; color: white; font-size: 16px; font-weight: bold; text-decoration: none; border-radius: 6px;">
+                    Watch Tutorial
+                </a>
+            </div>
+            
+            <p>If you experience any technical difficulties or have trouble conducting an online MCQ test, please contact the creator of Start Test for assistance:</p>
+            <p style="text-align: center; margin: 20px 0;">
+                <a href="mailto:anishjoshi1999@gmail.com" style="color: #3498DB; text-decoration: none; font-weight: 500;">anishjoshi1999@gmail.com</a>
+            </p>
+            
+            <p>Thank you for using Start Test!</p>
+        </div>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 25px 0;">
+        
+        <div style="text-align: center; color: #666; font-size: 14px;">
+            <p style="margin: 0;">Start Test</p>
+            <p style="margin: 5px 0 0 0;">Your Trusted Examination Platform</p>
+        </div>
+    </div>
+</div>
+      `,
+    });
+    return response;
+  } catch (error) {
+    console.error("Error sending invitation email:", error);
+    throw error;
+  }
+};
 module.exports = {
   sendVerificationEmail,
   sendPasswordResetEmail,
   sendInviteViaEmail,
   sendAccountCreationConfirmationEmail,
-  sendNotification
+  sendNotification,
+  sendInviteViaEmailForAdminAccess
 };

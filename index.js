@@ -12,6 +12,7 @@ const performanceRoutes = require("./Routes/performanceRoute");
 const participationRoutes = require("./Routes/participationRoute");
 const inviteRoutes = require("./Routes/inviteRoute");
 const notifyRoutes = require("./Routes/notifyRoute");
+const emailRoute = require("./Routes/emailRoute");
 const logger = require("./config/logger"); // Import the logger
 const app = express();
 
@@ -60,6 +61,7 @@ app.use("/api/view-performance", performanceRoutes);
 app.use("/api/view-participation", participationRoutes);
 app.use("/api/invite", inviteRoutes);
 app.use("/api/notifications", notifyRoutes);
+app.use("/api/access", emailRoute);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
