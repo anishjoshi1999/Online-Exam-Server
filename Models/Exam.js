@@ -26,6 +26,10 @@ var ExamSchema = new mongoose.Schema(
     passMarks: { type: Number, required: true },
     questions: [QuestionSchema], // Embed the questions schema
     timezone: { type: String, required: true },
+    showResult: {
+      type: Boolean,
+      default: false,
+    },
     isDeleted: {
       type: Boolean,
       default: false,

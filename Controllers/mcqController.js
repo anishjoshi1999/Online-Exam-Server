@@ -9,7 +9,6 @@ const { CheckIfUserIsAdmin } = require("../utils/CheckIfUserIsAdmin");
 const createOne = async (req, res) => {
   try {
     const { examDetails, questions } = req.body;
-
     // Validate incoming data
     if (!examDetails || !questions) {
       return res.status(400).json({ success: false, message: "Invalid data" });
@@ -20,8 +19,15 @@ const createOne = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized to create exam" });
     }
 
-    const { startDate, endDate, timezone, examName, totalMarks, passMarks } =
-      examDetails;
+    const {
+      startDate,
+      endDate,
+      timezone,
+      examName,
+      totalMarks,
+      passMarks,
+      showResult,
+    } = examDetails;
 
     // Convert dates to UTC
     const startDateUTC = moment.tz(startDate, timezone).utc();
@@ -52,6 +58,7 @@ const createOne = async (req, res) => {
       totalMarks,
       passMarks,
       timezone,
+      showResult,
       userId: req.user.userId,
       questions: formattedQuestions,
     });
@@ -62,7 +69,7 @@ const createOne = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "Exam created successfully!",
-      slug: newExam.slug,
+      slug: "",
     });
   } catch (error) {
     return res.status(500).json({

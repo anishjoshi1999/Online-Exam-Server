@@ -12,7 +12,7 @@ const fetchExam = async (req, res) => {
       slug: req.params.slug,
       isDeleted: false,
     });
-
+    
     if (!exam) {
       return res.status(404).json({
         success: false,
@@ -22,20 +22,19 @@ const fetchExam = async (req, res) => {
 
     // Fetch user email
     const user = await User.findById(req.user.userId).select("email");
-
+    console.log(user)
     if (!user) {
       return res.status(401).json({
         success: false,
         message: "User not found.",
       });
     }
-
     // Check if the user is invited to the exam
     const access = await Participant.findOne({
       slug: req.params.slug,
       email: user.email,
     }).select("invited");
-
+   
     if (!access?.invited) {
       return res.status(401).json({
         success: false,

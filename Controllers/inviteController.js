@@ -12,6 +12,7 @@ const addParticipant = async (req, res) => {
 
     const existingParticipant = await Participant.findOne({
       email,
+      slug,
       createdBy: req.user.userId,
     });
 
@@ -21,6 +22,7 @@ const addParticipant = async (req, res) => {
 
     const participant = new Participant({
       email,
+      slug,
       createdBy: req.user.userId,
     });
     await participant.save();
@@ -44,6 +46,7 @@ const sendEmail = async (req, res) => {
 
     const participant = await Participant.findOne({
       email,
+      slug,
       createdBy: req.user.userId,
     });
     if (!participant) {
@@ -64,13 +67,12 @@ const sendEmail = async (req, res) => {
 // Remove a participant
 const removeParticipant = async (req, res) => {
   try {
-    const { email } = req.body;
-
+    const { email, slug } = req.body;
     if (!email) {
       return res.status(400).json({ message: "Email is required." });
     }
 
-    const result = await Participant.findOneAndDelete({ email });
+    const result = await Participant.findOneAndDelete({ email, slug });
     if (!result) {
       return res.status(404).json({ message: "Participant not found." });
     }
@@ -88,6 +90,7 @@ const getParticipants = async (req, res) => {
       return res.status(400).json({ message: "Slug is required." });
     }
     const participants = await Participant.find({
+      slug,
       createdBy: req.user.userId,
     });
     res.status(200).json(participants);
