@@ -83,7 +83,7 @@ const sendEmail = async (req, res) => {
 
     // participant.invited = true;
     console.log(`Sending email to ${email}`);
-    // await sendInviteViaEmail([email], slug);
+    await sendInviteViaEmail([email], slug);
     await participant.save();
     await invitation.save();
 
