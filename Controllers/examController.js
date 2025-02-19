@@ -2,7 +2,7 @@ require("dotenv").config();
 const User = require("../Models/User");
 const Exam = require("../Models/Exam");
 const Result = require("../Models/Result");
-const Participant = require("../Models/Participant");
+const IsInvited = require("../Models/IsInvited");
 const { redis } = require("../utils/redis");
 
 const fetchExam = async (req, res) => {
@@ -22,20 +22,20 @@ const fetchExam = async (req, res) => {
 
     // Fetch user email
     const user = await User.findById(req.user.userId).select("email");
-    console.log(user)
     if (!user) {
       return res.status(401).json({
         success: false,
         message: "User not found.",
       });
     }
-    // Check if the user is invited to the exam
-    const access = await Participant.findOne({
+
+    const access = await IsInvited.findOne({
       slug: req.params.slug,
-      email: user.email,
-    }).select("invited");
+      "accessList.email": user.email, 
+    });
+    console.log(access)
    
-    if (!access?.invited) {
+    if (!access) {
       return res.status(401).json({
         success: false,
         message: "User does not have access to the exam.",

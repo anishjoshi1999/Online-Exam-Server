@@ -9,17 +9,10 @@ const ParticipantSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
     },
-    slug: {
-      type: String,
-    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-    },
-    invited: {
-      type: Boolean,
-      default: false,
     },
   },
   { timestamps: true }
