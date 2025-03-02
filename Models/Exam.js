@@ -1,12 +1,15 @@
 const mongoose = require("mongoose");
 const slugify = require("slugify"); // Import slugify package
 const User = require("./User");
-
+var OptionSchema = new mongoose.Schema({
+  option: { type: String, required: true }, // option e.g a,b,c,d etc
+  optionText: { type: String, required: true }, // option text e.g "This is the text"
+});
 var QuestionSchema = new mongoose.Schema({
   question: { type: String, required: true },
-  options: { type: [String], required: true },
+  options: { type: [OptionSchema], required: true },
   correctAnswer: {
-    type: String,
+    type: String, // a,b,c,d
     required: true,
     set: function (value) {
       return value.toLowerCase(); // Set method to convert to lowercase
@@ -19,7 +22,7 @@ var QuestionSchema = new mongoose.Schema({
 var ExamSchema = new mongoose.Schema(
   {
     examName: { type: String, required: true },
-    slug: { type: String, unique: true }, // Slug field
+    slug: { type: String, unique: true}, // Make slug required
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     totalMarks: { type: Number, required: true },
@@ -38,6 +41,7 @@ var ExamSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true, // Improves query performance
     },
   },
   { timestamps: true }
